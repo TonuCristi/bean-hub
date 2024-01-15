@@ -1,20 +1,25 @@
 import styled from "styled-components";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import { NavLink } from "react-router-dom";
 import { HiMiniXMark } from "react-icons/hi2";
 
+import { User } from "../../services/apiUsers";
+// import { UseMutateFunction } from "@tanstack/react-query";
+
 type Props = {
   title: string;
   onClick: (e?: any) => void;
+  onSubmitUser: any;
+  // UseMutateFunction<any[], Error, User, unknown, any>
 };
 
 const Overlay = styled.div`
   width: 100%;
   height: 100vh;
 
-  /* background: rgba(0, 0, 0, 0.8); */
   backdrop-filter: blur(10px);
 
   position: absolute;
@@ -71,32 +76,56 @@ const Icon = styled(HiMiniXMark)`
   color: var(--color-teal-500);
 `;
 
-export default function Authentication({ title, onClick }: Props) {
+export default function Authentication({
+  title,
+  onClick,
+  onSubmitUser,
+}: Props) {
+  const { register, handleSubmit } = useForm();
+  const onSubmit: SubmitHandler<User> = (data) => {
+    if (title === "Sign up") onSubmitUser(data);
+
+    if (title === "Sign in")
+      onSubmitUser({
+        email: data.email,
+        password: data.password,
+      });
+  };
+
   return (
     <Overlay>
       <StyledAuthentication>
         <Title>{title}</Title>
 
-        <Form>
-          <Input
-            type="text"
-            placeholder="Full name"
-            variant="regular"
-            required={true}
-          />
+        <Form onSubmit={handleSubmit((data) => onSubmit(data as User))}>
+          {title === "Sign up" && (
+            <Input
+              type="text"
+              placeholder="Full name"
+              variant="regular"
+              register={register("name", {
+                required: true,
+                minLength: 5,
+                maxLength: 40,
+              })}
+            />
+          )}
           <Input
             type="email"
             placeholder="Email"
             variant="regular"
-            required={true}
+            register={register("email")}
           />
           <Input
             type="password"
             placeholder="Password"
             variant="regular"
-            required={true}
+            register={register("password")}
           />
-          <ForgotPassword to="/">Forgot password?</ForgotPassword>
+
+          {title !== "Sign up" && (
+            <ForgotPassword to="/">Forgot password?</ForgotPassword>
+          )}
 
           <Button variant="regular">{title}</Button>
           <CloseButton onClick={onClick}>

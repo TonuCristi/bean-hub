@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getUser } from "../services/apiUsers";
+import { getLoggedUser } from "../services/apiUsers";
 
-export function useUser(userId: number) {
-  const { data: user } = useQuery({
-    queryKey: [`user${userId}`],
-    queryFn: () => getUser(userId),
+export function useUser() {
+  const { data, isSuccess } = useQuery({
+    queryKey: ["user"],
+    queryFn: getLoggedUser,
   });
 
-  return { user };
+  return { data, isSuccess };
 }

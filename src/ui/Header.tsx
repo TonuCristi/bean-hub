@@ -8,7 +8,11 @@ import Button from "./Button";
 import Authentication from "../features/authentication/Authentication";
 import { NavLink } from "react-router-dom";
 
-type StateIsOpen = {
+import { useCreateUser } from "../features/authentication/useCreateUser";
+import { useSignUser } from "../features/authentication/useSignInUser";
+import { useUser } from "../hooks/useUser";
+
+export type IsOpen = {
   signUp: boolean;
   signIn: boolean;
 };
@@ -41,16 +45,20 @@ const Wrapper = styled.div`
 `;
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState<StateIsOpen>({
+  const [isOpen, setIsOpen] = useState<IsOpen>({
     signUp: false,
     signIn: false,
   });
+  const { signUp } = useCreateUser(setIsOpen);
+  const { signIn } = useSignUser();
+  const { data: user, isSuccess } = useUser();
 
-  function handleClick(e: any, state: StateIsOpen) {
+  function handleClick(e: any, state: IsOpen) {
     e.stopPropagation();
-
-    return setIsOpen(state);
+    setIsOpen(state);
   }
+
+  console.log(user);
 
   return (
     <StyledHeader>
@@ -60,39 +68,48 @@ export default function Header() {
 
       <SearchBar placeholder="Search new people..." variant="header" />
 
-      <Wrapper>
-        {/* <Notifications /> */}
-        {/* <Avatar
-          variant="profile"
-          to="/"
-          username="John Smith"
-          src="https://bycbloluzgweztroyymv.supabase.co/storage/v1/object/public/avatars/user-4.jpg"
-        /> */}
-        <Button
-          variant="regular"
-          onClick={(e) => handleClick(e, { signUp: true, signIn: false })}
-        >
-          Sign up
-        </Button>
-        <Button
-          variant="border"
-          onClick={(e) => handleClick(e, { signUp: false, signIn: true })}
-        >
-          Sign in
-        </Button>
-        {isOpen.signUp && (
-          <Authentication
-            title="Sign up"
-            onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
+      {isSuccess && (
+        <Wrapper>
+          <Notifications />
+          <Avatar
+            variant="profile"
+            to="/"
+            username={user?.user_metadata.name}
+            src="https://bycbloluzgweztroyymv.supabase.co/storage/v1/object/public/avatars/user-4.jpg"
           />
-        )}
-        {isOpen.signIn && (
-          <Authentication
-            title="Sign in"
-            onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
-          />
-        )}
-      </Wrapper>
+        </Wrapper>
+      )}
+
+      {!isSuccess && (
+        <Wrapper>
+          <Button
+            variant="regular"
+            onClick={(e) => handleClick(e, { signUp: true, signIn: false })}
+          >
+            Sign up
+          </Button>
+          <Button
+            variant="border"
+            onClick={(e) => handleClick(e, { signUp: false, signIn: true })}
+          >
+            Sign in
+          </Button>
+          {isOpen.signUp && (
+            <Authentication
+              title="Sign up"
+              onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
+              onSubmitUser={signUp}
+            />
+          )}
+          {isOpen.signIn && (
+            <Authentication
+              title="Sign in"
+              onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
+              onSubmitUser={signIn}
+            />
+          )}
+        </Wrapper>
+      )}
     </StyledHeader>
   );
 }
