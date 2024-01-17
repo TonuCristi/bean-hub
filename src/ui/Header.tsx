@@ -1,21 +1,14 @@
 import styled from "styled-components";
-import { useState } from "react";
 
 import Avatar from "./Avatar";
 import SearchBar from "./SearchBar";
 import Notifications from "../features/notifications/Notifications";
 import Button from "./Button";
-import Authentication from "../features/authentication/Authentication";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
-import { useCreateUser } from "../features/authentication/useCreateUser";
-import { useSignUser } from "../features/authentication/useSignInUser";
 import { useUser } from "../hooks/useUser";
-
-export type IsOpen = {
-  signUp: boolean;
-  signIn: boolean;
-};
+import { signOutUser } from "../services/apiUsers";
+import { useQueryClient } from "@tanstack/react-query";
 
 const StyledHeader = styled.header`
   background-color: #fff;
@@ -45,20 +38,9 @@ const Wrapper = styled.div`
 `;
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState<IsOpen>({
-    signUp: false,
-    signIn: false,
-  });
-  const { signUp } = useCreateUser(setIsOpen);
-  const { signIn } = useSignUser();
-  const { data: user, isSuccess } = useUser();
-
-  function handleClick(e: any, state: IsOpen) {
-    e.stopPropagation();
-    setIsOpen(state);
-  }
-
-  console.log(user);
+  const queryClient = useQueryClient();
+  const { data } = useUser();
+  const navigate = useNavigate();
 
   return (
     <StyledHeader>
@@ -68,46 +50,26 @@ export default function Header() {
 
       <SearchBar placeholder="Search new people..." variant="header" />
 
-      {isSuccess && (
+      {!!data && (
         <Wrapper>
           <Notifications />
           <Avatar
             variant="profile"
             to="/"
-            username={user?.user_metadata.name}
+            // username={"John"}
+            username={data?.user.user_metadata.name}
             src="https://bycbloluzgweztroyymv.supabase.co/storage/v1/object/public/avatars/user-4.jpg"
           />
-        </Wrapper>
-      )}
-
-      {!isSuccess && (
-        <Wrapper>
-          <Button
-            variant="regular"
-            onClick={(e) => handleClick(e, { signUp: true, signIn: false })}
-          >
-            Sign up
-          </Button>
           <Button
             variant="border"
-            onClick={(e) => handleClick(e, { signUp: false, signIn: true })}
+            onClick={() => {
+              signOutUser();
+              queryClient.removeQueries();
+              navigate("authentication");
+            }}
           >
-            Sign in
+            Sign out
           </Button>
-          {isOpen.signUp && (
-            <Authentication
-              title="Sign up"
-              onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
-              onSubmitUser={signUp}
-            />
-          )}
-          {isOpen.signIn && (
-            <Authentication
-              title="Sign in"
-              onClick={(e) => handleClick(e, { signUp: false, signIn: false })}
-              onSubmitUser={signIn}
-            />
-          )}
         </Wrapper>
       )}
     </StyledHeader>

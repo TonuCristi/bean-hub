@@ -1,11 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import { signInUser } from "../../services/apiUsers";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+import { signInUser } from "../../services/apiUsers";
+
 export function useSignUser() {
+  const navigate = useNavigate();
+
   const { mutate: signIn, isError } = useMutation({
     mutationFn: signInUser,
-    onSuccess: () => toast.success("Succesfully signed in!"),
+    onSuccess: () => {
+      navigate("/");
+    },
     onError: () => toast.error("Something went wrong with signing in!"),
   });
 

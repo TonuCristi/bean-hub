@@ -5,7 +5,7 @@ import PostInteractionBar from "./PostInteractionBar";
 import CommentBox from "./CommentBox";
 
 import { getTimePassed } from "../../utils/getTimePassed";
-import { useUser } from "../../hooks/useUser";
+import { useUserByEmail } from "../../hooks/useUserByEmail";
 
 type Props = {
   created_at: string;
@@ -44,17 +44,12 @@ const Pre = styled.pre`
 `;
 
 export default function Post({ post }: { post: Props }) {
-  const { data: user, isSuccess } = useUser();
+  // const { data: userData, isSuccess } = useUserByEmail(post?.email);
 
   return (
     <StyledPost>
       <Wrapper>
-        <Avatar
-          variant="post"
-          to="/"
-          username={user?.user_metadata.name}
-          src={""}
-        />
+        <Avatar variant="post" to="/" username={"John"} src={""} />
         <TimePassed>{getTimePassed(post.created_at)}</TimePassed>
       </Wrapper>
 

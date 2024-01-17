@@ -2,7 +2,7 @@ import supabase from "./supabase";
 
 interface PostInterface {
   content: string;
-  userId: number;
+  userId: number | undefined;
 }
 
 export async function getPosts() {

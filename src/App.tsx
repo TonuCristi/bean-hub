@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Statistics from "./pages/Statistics";
 import Favourites from "./pages/Favourites";
 import Settings from "./pages/Settings";
+import Authentication from "./pages/Authentication";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
         element: <Settings />,
       },
     ],
+  },
+  {
+    path: "/authentication",
+    element: <Authentication />,
   },
 ]);
 

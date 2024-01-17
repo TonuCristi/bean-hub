@@ -1,20 +1,16 @@
-import { Dispatch, SetStateAction } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { createUser } from "../../services/apiUsers";
 
-import { IsOpen } from "../../ui/Header";
+export function useCreateUser() {
+  const navigate = useNavigate();
 
-export function useCreateUser(setIsOpen: Dispatch<SetStateAction<IsOpen>>) {
   const { mutate: signUp, isError } = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      setIsOpen({
-        signUp: false,
-        signIn: false,
-      });
-      toast.success("User created succesfully!");
+      navigate("/");
     },
     onError: () => toast.error("User creating went wrong!"),
   });

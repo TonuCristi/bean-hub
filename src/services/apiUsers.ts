@@ -1,6 +1,7 @@
 import supabase from "./supabase";
 
 export interface User {
+  id: number;
   name: string;
   email: string;
   password: string;
@@ -17,21 +18,24 @@ export async function getUsers() {
   return users;
 }
 
-export async function getUser(id: number) {
-  const { data, error } = await supabase.from("users").select("*").eq("id", id);
+export async function getUserByEmail(email: string | undefined) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email);
 
   if (error) {
     console.log(error);
     throw new Error("Something went wrong...");
   }
 
-  const user = data?.[0];
+  const user: User = data?.[0] || null;
 
   return user;
 }
 
 export async function createUser(newUser: User) {
-  const { data: user, error: createError } = await supabase
+  const { error: createError } = await supabase
     .from("users")
     .insert([{ name: newUser.name, email: newUser.email }])
     .select();
@@ -46,12 +50,6 @@ export async function createUser(newUser: User) {
     },
   });
 
-  // const { data: signInUser, error: signInError } =
-  //   await supabase.auth.signInWithPassword({
-  //     email: "example@email.com",
-  //     password: "example-password",
-  //   });
-
   if (createError) {
     console.log(createError);
     throw new Error("Something went wrong...");
@@ -61,11 +59,6 @@ export async function createUser(newUser: User) {
     console.log(signUpError);
     throw new Error("Something went wrong...");
   }
-
-  // if (signInError) {
-  //   console.log(signInError);
-  //   throw new Error("Something went wrong...");
-  // }
 
   return signUpUser;
 }
@@ -85,17 +78,21 @@ export async function signInUser(newUser: User) {
 }
 
 export async function getLoggedUser() {
-  // const { data, error } = await supabase.auth.getSession();
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
 
   if (error) {
     console.log(error);
-    // throw new Error("Something went wrong...");
+    throw new Error("Something went wrong...");
   }
 
-  return user;
+  return data;
+}
+
+export async function signOutUser() {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.log(error);
+    throw new Error("Something went wrong...");
+  }
 }

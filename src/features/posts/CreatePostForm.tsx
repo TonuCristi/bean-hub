@@ -7,8 +7,10 @@ import AvatarImage from "../../ui/AvatarImage";
 import Button from "../../ui/Button";
 
 import { useCreatePost } from "./useCreatePost";
+import { useUserByEmail } from "../../hooks/useUserByEmail";
 
 interface FormInput {
+  id: number;
   content: string;
 }
 
@@ -43,28 +45,16 @@ const Input = styled.textarea`
   resize: none;
 `;
 
-// const Button = styled.button`
-//   align-self: flex-start;
-//   border: none;
-//   background-color: var(--color-teal-500);
-//   color: #fff;
-//   font-family: inherit;
-//   font-size: 1.6rem;
-//   font-weight: 500;
-//   padding: 1.2rem 2.4rem;
-//   border-radius: 0.9rem;
-//   cursor: pointer;
-// `;
-
 export default function CreatePostForm() {
   const { addPost, isCreating } = useCreatePost();
+  const { data: userData, isSuccess } = useUserByEmail();
 
   const { register, handleSubmit, reset, formState } = useForm<FormInput>();
   const onSubmit: SubmitHandler<FormInput> = (data) => {
-    if (!data.content) {
+    if (!data.content && !isSuccess) {
       return toast.error("You have to write something...");
     }
-    addPost({ content: data.content, userId: 1 });
+    if (isSuccess) addPost({ content: data.content, userId: userData?.id });
   };
 
   useEffect(() => {
